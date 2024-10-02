@@ -3,3 +3,4 @@ __pycache__
 .env
 env
 sql_app.db
+.DS_Store
