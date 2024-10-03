@@ -5,7 +5,7 @@ from db.session import get_db
 from typing import Optional
 from db.models.user import User
 from apis.v1.route_login import get_current_user
-from jose import jwt, JWTError
+from jose import jwt, JWTError, ExpiredSignatureError
 from core.config import settings
 from db.repository.login import get_user_by_email
 
@@ -33,7 +33,9 @@ def home(request: Request, alert: Optional[str] = None, db: Session = Depends(ge
         email: str = payload.get("sub")
         if email is None:
             raise credential_exception
-    except JWTError:
+    except ExpiredSignatureError:
+        return templates.TemplateResponse("/auth/login.html", {"request": request, "alert": alert})
+    except JWTError as e:
         raise credential_exception
 
     user = get_user_by_email(email=email, db=db)
